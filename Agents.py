@@ -25,7 +25,9 @@ class AbstractAgent:
 
     def check_if_valid_location(self, old_position, new_position):
         if 0 <= new_position[0] <= self.environment.max_x and 0 <= new_position[1] <= self.environment.max_y:
+
             if not (old_position, new_position) in self.environment.blocked_edges and not (new_position, old_position) in self.environment.blocked_edges:
+
                 if  self.cur_location is old_position:
                     for agent in self.environment.agents:
                         if agent != self and agent.cur_location == new_position:
@@ -49,9 +51,10 @@ class AbstractAgent:
 
     def handle_packages_and_deliveries(self):
         if self.environment.check_if_has_package(self.cur_location):
-            package = self.environment.get_package(self.cur_location)
-            package.cur_location = self.cur_location
-            self.packages.add(package)
+            packages = self.environment.get_packages(self.cur_location)
+            for package in packages:
+                package.cur_location = self.cur_location
+                self.packages.add(package)
 
         packages_to_remove = list()
 
@@ -116,7 +119,7 @@ class Human_Agent(Agent):
     def __init__(self, start_x, start_y,environment):
         super().__init__(start_x, start_y,environment)
 
-    # check if location has package / delivery and do something about 
+    # check if location has package / delivery and do something about it
     # in the general area 
 
     def take_action(self):

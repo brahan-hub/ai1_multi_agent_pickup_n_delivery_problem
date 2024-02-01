@@ -26,7 +26,7 @@ def read_input_file(file_path):
                 print(start_x, start_y,start_time, deliver_x, deliver_y, deadline)
                 package_id = str(len(environment.packages))
                 package = Package(package_id,int(start_x), int(start_y), int(deliver_x), int(deliver_y), int(start_time), int(deadline))
-                environment.packages.append(package)
+                environment.future_packages.add(package)
             elif line.startswith("#B"):
                 _, x1, y1, x2, y2 = line.split()
                 blocked_edge = ((int(x1), int(y1)), (int(x2), int(y2)))
@@ -35,21 +35,30 @@ def read_input_file(file_path):
                 _, x1, y1, x2, y2 = line.split()
                 fragile_edge = ((int(x1), int(y1)), (int(x2), int(y2)))
                 environment.fragile_edges.append(fragile_edge)
+            #elif line.startswith("#A"):
+            #     _, start_x, start_y = line.split()
+            #     agent = Agents.GreedyAgent(int(start_x), int(start_y),environment)
+            #     environment.agents.add(agent)
+            ##elif line.startswith("#H"):
+            ##     _, start_x, start_y = line.split()
+            ##     human_agent = Agents.Human_Agent(int(start_x), int(start_y), environment)
+            ##     environment.agents.add(human_agent)
+            #elif line.startswith("#I"):
+            #     _, start_x, start_y = line.split()
+            #     interfering_agent = Agents.Saboteur_Agent(int(start_x), int(start_y), environment)
+            #     environment.agents.add(interfering_agent)
             elif line.startswith("#A"):
                  _, start_x, start_y = line.split()
-                 agent = Agents.GreedyAgent(int(start_x), int(start_y),environment)
-                 environment.agents.add(agent)
-            #elif line.startswith("#H"):
-            #     _, start_x, start_y = line.split()
-            #     human_agent = Agents.Human_Agent(int(start_x), int(start_y), environment)
-            #     environment.agents.add(human_agent)
-            elif line.startswith("#I"):
-                 _, start_x, start_y = line.split()
-                 interfering_agent = Agents.Saboteur_Agent(int(start_x), int(start_y), environment)
-                 environment.agents.add(interfering_agent)
+                 greedy_search_agent = SearchAgents.AStarSearchAgent(int(start_x), int(start_y), environment)
+                 environment.agents.add(greedy_search_agent)
             elif line.startswith("#S"):
                  _, start_x, start_y = line.split()
                  greedy_search_agent = SearchAgents.GreedySearchAgent(int(start_x), int(start_y), environment)
                  environment.agents.add(greedy_search_agent)
+            elif line.startswith("#R"):
+                 _, start_x, start_y = line.split()
+                 greedy_search_agent = SearchAgents.RealTimeAStarSearchAgent(int(start_x), int(start_y), environment)
+                 environment.agents.add(greedy_search_agent)
+
 
     return environment

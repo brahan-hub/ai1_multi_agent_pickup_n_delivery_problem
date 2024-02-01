@@ -1,40 +1,47 @@
+from copy import deepcopy
+
 class Node:
-    def __init__(self, state_location, env_packages, agent_packages, parent=None, g=0, h=0):
+    def __init__(self, state_location, env, agent_packages, parent=None, g=0, h=0):
         self.state_location = state_location
         self.parent = parent
-        self.packages, self.deliveries = set(), set()
-        self.agent_packages = agent_packages
+        self.packages,  self.agent_packages = set(), set()
+        
         self.g = g  # cost from start node to current node
         self.h = h  # heuristic cost from current node to goal node
 
-        self.update_packages_and_deliveries(parent, env_packages)
+        self.update_packages_and_deliveries(parent, env, agent_packages)
 
     def f(self):
         return self.g + self.h
 
     # not sure maybe a way to do it better ? 
     # maybe save one matrix for packages taken, and one for the rest ? 
-    def update_packages_and_deliveries(self, prev_state, env_packages):
+    def update_packages_and_deliveries(self, prev_state, env, agent_packages):
         if prev_state is not None: 
-            self.packages = prev_state.packages
-            self.deliveries = prev_state.deliveries
+            for package in prev_state.packages:
+                self.packages.add(package)
 
-            if self.state_location in self.packages:
-                self.packages.remove(self.state_location)
-                self.agent_packages.add(self.state_location)
+            for package in prev_state.agent_packages:
+                self.agent_packages.add(package)
+            #self.packages = deepcopy(prev_state.packages)
+            #self.agent_packages = deepcopy(prev_state.agent_packages)
 
-            if self.state_location in self.deliveries and len(self.agent_packages) > 0:
-                packages_delivered = []
-                for package in self.agent_packages:
-                    if self.state_location == package.dst_location:
-                        self.deliveries.remove(self.state_location)
-                        packages_delivered.add(package)
-                if len(packages_delivered) > 0:
-                    self.agent_packages.remove(packages_delivered)
+            for package in env.get_packages(self.state_location):
+                self.agent_packages.add(package)
+            
+            self.packages.difference_update(self.agent_packages)
+
+            packge_delivered = set()
+            for package in self.agent_packages:
+                if self.state_location == package.dst_location:
+                    packge_delivered.add(package)
+
+            self.agent_packages.difference_update(packge_delivered)
         else:
-            for package in env_packages:
-                self.packages.add(package.cur_location)
-                self.deliveries.add(package.dst_location)
+            for package in env.packages:
+                self.packages.add(package)
+            #self.packages = deepcopy(env.packages)
 
-            if len(self.agent_packages) > 0:
-                self.packages.remove(self.agent_packages)
+            for package in agent_packages:
+                self.agent_packages.add(package)
+            self.packages.difference_update(self.agent_packages)
