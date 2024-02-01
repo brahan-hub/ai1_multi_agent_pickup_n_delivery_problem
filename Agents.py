@@ -11,9 +11,7 @@ class AbstractAgent:
         self.packages = set()
         self.environment = environment
         
-    @abstractmethod
-    def is_goal_location(self,current): ## current == package coordinate
-        pass
+
     
     def get_neighbors(self, position):
         x, y = position
@@ -27,9 +25,7 @@ class AbstractAgent:
 
     def check_if_valid_location(self, old_position, new_position):
         if 0 <= new_position[0] <= self.environment.max_x and 0 <= new_position[1] <= self.environment.max_y:
-
             if not (old_position, new_position) in self.environment.blocked_edges and not (new_position, old_position) in self.environment.blocked_edges:
-
                 if  self.cur_location is old_position:
                     for agent in self.environment.agents:
                         if agent != self and agent.cur_location == new_position:
@@ -39,6 +35,9 @@ class AbstractAgent:
             return True
         return False
 
+    @abstractmethod
+    def is_goal_location(self,current): ## current == package coordinate
+        pass
     
     @abstractmethod
     def take_action(self):
@@ -117,7 +116,7 @@ class Human_Agent(Agent):
     def __init__(self, start_x, start_y,environment):
         super().__init__(start_x, start_y,environment)
 
-    # check if location has package / delivery and do something about it
+    # check if location has package / delivery and do something about 
     # in the general area 
 
     def take_action(self):

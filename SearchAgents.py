@@ -77,7 +77,7 @@ class GreedySearchAgent(SearchAgent): # one expand with different goal state
         min_huristic = sys.maxsize
         next_vertex_to_go = self.cur_location
 
-        curr_state = Node(self.cur_location, self.environment.packages, self.packages)
+        curr_state = Node.Node(self.cur_location, self.environment.packages, self.packages,0,0)
         for neighbor in self.get_neighbors(self.cur_location):
             # self.state
             curr_h = self.hioristic_function(Node(neighbor, self.environment.packages, self.packages, curr_state, 1))

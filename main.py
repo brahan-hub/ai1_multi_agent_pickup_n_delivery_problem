@@ -16,23 +16,35 @@ def create_grid(max_x, max_y):
         for y in range(2*max_y + 1)
     ]
     return grid
+def special_edges(grid,edge, letter):
+    src_x, src_y = edge[0]
+    dst_x, dst_y = edge[1]
+    if src_y == dst_y: # horizontal
+        grid[src_y * 2][min(src_x * 2, dst_x * 2) + 1] = letter
+    elif src_x == dst_x: #vertical
+        grid[min(src_y * 2, dst_y * 2) + 1][src_x * 2] = letter 
 
-    
 def print_board(environment):
     grid = create_grid(environment.max_x,environment.max_y)
     for package in environment.packages:
         if environment.counter >= package.start_time:
-            grid[2*package.cur_location[1]][2*package.cur_location[0]] =  "P" + package.id ## place the packages where 0,0 is bottom left
-            grid[2*package.dst_location[1]][2*package.dst_location[0]] = "D" + package.id## place the packages where 0,0 is bottom left
+            grid[2*package.cur_location[1]][2*package.cur_location[0]] =  "P" #+ package.id ## place the packages where 0,0 is bottom left
+            grid[2*package.dst_location[1]][2*package.dst_location[0]] = "D" #+ package.id## place the packages where 0,0 is bottom left
             print(f"Package {package.id} cur location: {package.cur_location}, delivery location: {package.dst_location}, package deadline {package.deadline}")
     for agent in environment.agents:
         grid[2*agent.cur_location[1]][2*agent.cur_location[0]] = agent.agent_letter() ## place the packages where 0,0 is bottom left
         print(f"Agent {agent.agent_letter()} cur location: {agent.cur_location}")
 
+    for edge in environment.blocked_edges:
+        special_edges(grid,edge,"#")
+    for edge in environment.fragile_edges:
+        special_edges(grid,edge,"/")
+
     for row in reversed(grid): ## print the grid where 0,0 is bottom left
         print(" ".join(row))
-    # for edge in environment.blocked_edges:
-        # if edge.point1[0] 
+    
+
+        
     print("blocked edges: ", environment.blocked_edges)
     print("fragile edges: ", environment.fragile_edges)
     print("time counter: ", environment.counter)
