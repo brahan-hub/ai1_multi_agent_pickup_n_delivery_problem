@@ -35,7 +35,7 @@ def read_input_file(file_path):
                 _, x1, y1, x2, y2 = line.split()
                 fragile_edge = ((int(x1), int(y1)), (int(x2), int(y2)))
                 environment.fragile_edges.append(fragile_edge)
-            #elif line.startswith("#A"):
+            #elif line.startswith("#G"):
             #     _, start_x, start_y = line.split()
             #     agent = Agents.GreedyAgent(int(start_x), int(start_y),environment)
             #     environment.agents.add(agent)
@@ -49,16 +49,16 @@ def read_input_file(file_path):
             #     environment.agents.add(interfering_agent)
             elif line.startswith("#A"):
                  _, start_x, start_y = line.split()
-                 greedy_search_agent = SearchAgents.AStarSearchAgent(int(start_x), int(start_y), environment)
-                 environment.agents.add(greedy_search_agent)
+                 search_agent = SearchAgents.AStarSearchAgent(int(start_x), int(start_y), environment)
+                 environment.agents.add(search_agent)
             elif line.startswith("#S"):
                  _, start_x, start_y = line.split()
-                 greedy_search_agent = SearchAgents.GreedySearchAgent(int(start_x), int(start_y), environment)
-                 environment.agents.add(greedy_search_agent)
+                 search_agent = SearchAgents.GreedySearchAgent(int(start_x), int(start_y), environment)
+                 environment.agents.add(search_agent)
             elif line.startswith("#R"):
                  _, start_x, start_y = line.split()
-                 greedy_search_agent = SearchAgents.RealTimeAStarSearchAgent(int(start_x), int(start_y), environment)
-                 environment.agents.add(greedy_search_agent)
+                 search_agent = SearchAgents.RealTimeAStarSearchAgent(int(start_x), int(start_y), environment)
+                 environment.agents.add(search_agent)
 
 
     return environment

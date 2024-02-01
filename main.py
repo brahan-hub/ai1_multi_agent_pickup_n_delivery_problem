@@ -47,8 +47,13 @@ def start_game(env):
             env.counter = env.counter + 1
             env.update_future_packages()
             print_board(env)
+            print(agent.agent_letter()+ str(agent.id)+ " Current Score: " + str(agent.score))
 
-            # greedy agent keep getting stuck 
+            # greedy agent keep getting stuck
+            
+    print("Final ScoreBoard:")
+    for agent in env.agents:
+        print(agent.agent_letter()+ str(agent.id)+ " Score: " + str(agent.score))
        
 def main():
     file_path = "input.txt" 
@@ -57,7 +62,11 @@ def main():
     print("Initial Board:")
     environment.update_max_game_time()
     environment.update_future_packages()
+    
+    # for agent in environment.agents:
+        
     start_game(environment)
+    
 
 
 if __name__ == "__main__":
