@@ -43,17 +43,19 @@ def start_game(env):
     print_board(env)
     while not env.is_game_over():
         for agent in env.agents:
+            print(agent.agent_letter() + " Turn")
             agent.take_action()
             env.counter = env.counter + 1
             env.update_future_packages()
             print_board(env)
-            print(agent.agent_letter()+ str(agent.id)+ " Current Score: " + str(agent.score))
-
+            print("env counter: "+ str(env.counter))
+            print(agent.agent_letter()+  " Current Score: " + str(agent.score))
+# str(agent.id)+
             # greedy agent keep getting stuck
             
-    print("Final ScoreBoard:")
+    print("Final ScoreBoard:") #str(agent.id)+
     for agent in env.agents:
-        print(agent.agent_letter()+ str(agent.id)+ " Score: " + str(agent.score))
+        print(agent.agent_letter()+  " Score: " + str(agent.score))
        
 def main():
     file_path = "input.txt" 

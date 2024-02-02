@@ -27,6 +27,7 @@ def read_input_file(file_path):
                 package_id = str(len(environment.packages))
                 package = Package(package_id,int(start_x), int(start_y), int(deliver_x), int(deliver_y), int(start_time), int(deadline))
                 environment.future_packages.add(package)
+                environment.packages.add(package)
             elif line.startswith("#B"):
                 _, x1, y1, x2, y2 = line.split()
                 blocked_edge = ((int(x1), int(y1)), (int(x2), int(y2)))
