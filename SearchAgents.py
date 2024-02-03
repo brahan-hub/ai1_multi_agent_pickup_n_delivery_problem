@@ -46,14 +46,19 @@ class SearchAgent(Agents.AbstractAgent):
 
 
     def min_distances(self, distance_dict,start_location):
+        counter = len(distance_dict)
         visited = set()
         queue = deque([(start_location, 0)])
         
-        while queue:
+        while queue and counter > 0:
             current_node, distance = queue.popleft()
             
+            if current_node in visited:
+                continue
+
             if current_node in distance_dict.keys():
                 distance_dict[current_node] = distance
+                counter -= 1
                 
             visited.add(current_node)
             

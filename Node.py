@@ -5,6 +5,7 @@ class Node:
         self.state_location = state_location
         self.parent = parent
         self.packages,  self.agent_packages = set(), set()
+        self.delivered_packages = set()
         
         self.g = g  # cost from start node to current node
         self.h = h  # heuristic cost from current node to goal node
@@ -23,25 +24,30 @@ class Node:
 
             for package in prev_state.agent_packages:
                 self.agent_packages.add(package)
+
+
+            for package in prev_state.delivered_packages:
+                self.delivered_packages.add(package)
+            
             #self.packages = deepcopy(prev_state.packages)
             #self.agent_packages = deepcopy(prev_state.agent_packages)
 
             for package in env.get_packages(self.state_location):
-                self.agent_packages.add(package)
-            
-            self.packages.difference_update(self.agent_packages)
+                if package not in self.delivered_packages and package not in self.agent_packages:
+                    self.agent_packages.add(package)
+                    self.packages.remove(package)
 
-            packge_delivered = set()
+            #packge_delivered = set()
             for package in self.agent_packages:
                 if self.state_location == package.dst_location:
-                    packge_delivered.add(package)
+                    self.delivered_packages.add(package)
 
-            self.agent_packages.difference_update(packge_delivered)
+            self.agent_packages.difference_update(self.delivered_packages)
         else:
             for package in env.packages:
-                self.packages.add(package)
+                self.packages.add(package)            
             #self.packages = deepcopy(env.packages)
 
             for package in agent_packages:
                 self.agent_packages.add(package)
-            self.packages.difference_update(self.agent_packages)
+                self.packages.remove(package)
