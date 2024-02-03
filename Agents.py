@@ -5,21 +5,16 @@ import Package
 from abc import ABC, abstractmethod
 
 ##### _________________________ ABSTRACT AGENT _________________________ #####
-# NUM_OF_AGENTS = 0
 
 class AbstractAgent:
-    # n_agents = 0
+    
     def __init__(self, start_x, start_y,environment):
         self.cur_location = (start_x,start_y)
         self.score = 0
         self.packages = set()
         self.environment = environment
-        # self.n_agents +=1
-        # NUM_OF_AGENTS +=1
-        # self.id = AbstractAgent.n_agents
 
-        
-    # def set_id(self):
+
         
     @abstractmethod
     def agent_letter(self):

@@ -11,17 +11,19 @@ class Environment:
         self.future_packages = set()
         self.agents = set()
         self.counter = 0
-        self.max_time = 0
+        self.max_running_time = 0
 
 
     def update_max_game_time(self):
         for package in self.future_packages:
-            if self.max_time < package.deadline:
-                self.max_time = package.deadline
+            if self.max_running_time == 0:
+                self.max_running_time = package.deadline
+            if self.max_running_time > package.deadline:
+                self.max_running_time = package.deadline
 
 
     def is_game_over(self):
-        return (len(self.packages) == 0 and len(self.future_packages) == 0) or self.counter > self.max_time
+        return (len(self.packages) == 0 and len(self.future_packages) == 0) or self.counter > self.max_running_time
 
 
     def get_packages(self, location):

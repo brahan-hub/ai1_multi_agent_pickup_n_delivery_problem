@@ -1,0 +1,465 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date true
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+\noindent
+Introduction to Artificial Intelligence Programming Assignment 1 - Theortical
+ Bonus
+\end_layout
+
+\begin_layout Standard
+\noindent
+We'll show that single-agent pickup and delivery problem(SAPD) is in NP-HARD
+ compleixity class by using a reduction from Traveling Salesman Problem
+ which we saw in previous courses that 
+\begin_inset Formula $TSP\in\text{NP-HARD}$
+\end_inset
+
+ , by the reduction theorem we will conclude that 
+\begin_inset Formula $SAPD\in\text{NP-HARD}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\noindent
+First, lets show that 
+\begin_inset Formula $\text{SAPD}\in\text{NP}$
+\end_inset
+
+ by showing the existence of a verifier V in polynomial time:
+\end_layout
+
+\begin_layout Standard
+\noindent
+The Verifier will work as follows:
+\end_layout
+
+\begin_layout Standard
+\noindent
+given the output to the 
+\begin_inset Formula $\text{SAPD}$
+\end_inset
+
+ problem - a path 
+\begin_inset Formula $\left\{ L_{1},\ldots,L_{m}\right\} \in V_{G}$
+\end_inset
+
+ in the graph, our Verifier will work as follows:
+\end_layout
+
+\begin_layout Standard
+\noindent
+1.
+ will check that all the nodes in the Packages list 
+\begin_inset Formula $v_{1},,,v_{p}\in P\subseteq V$
+\end_inset
+
+, are in the path - 
+\begin_inset Formula $O(V^{2})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+1.2.
+ else: return false
+\end_layout
+
+\begin_layout Standard
+\noindent
+2.
+ will check that all the nodes in the Delivery list 
+\begin_inset Formula $u_{1},,,u_{d}\in D\subseteq V$
+\end_inset
+
+, are in the path - 
+\begin_inset Formula $O(V^{2})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+2.2.
+ else: return false
+\end_layout
+
+\begin_layout Standard
+\noindent
+3.
+ for each vertex 
+\begin_inset Formula $v_{1},,,v_{p}$
+\end_inset
+
+in the Package list:
+\end_layout
+
+\begin_layout Standard
+\noindent
+3.1 check that its delivery location appear after it in the path.
+ for 
+\begin_inset Formula $v_{i}=L_{i}$
+\end_inset
+
+ check for 
+\begin_inset Formula $u_{i}\in L_{i+1},\cdots,L_{m}$
+\end_inset
+
+: 
+\begin_inset Formula $|V|-1+|V|-2+,\ldots1=$
+\end_inset
+
+ 
+\begin_inset Formula $O(V^{2})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+3.2 else return false
+\end_layout
+
+\begin_layout Standard
+\noindent
+4.
+ if all the packages have their delivery location after them in the output
+ path, return True, else return false
+\end_layout
+
+\begin_layout Standard
+\noindent
+Verifier Correctness:
+\end_layout
+
+\begin_layout Standard
+\noindent
+Given an output to the 
+\begin_inset Formula $\text{SAPD}$
+\end_inset
+
+ problem - a path in graph 
+\begin_inset Formula $G$
+\end_inset
+
+, our verifier will check if the agent will path through all the Packages
+ and delivery locations given in the output, and after that will check if
+ each Package is able to reach its Delivery location (according to the output
+ path).
+ 
+\end_layout
+
+\begin_layout Standard
+\noindent
+if the Verifier output is True, our output path have all the packages and
+ delivery locations inside it, meaning our agent is visitng all those nodes.
+ additionally if the Verifier output is True, the agent visit each package
+ before he visit its delivery location, meaning all the packages have been
+ delivered.
+\end_layout
+
+\begin_layout Standard
+\noindent
+if the Verifier output is False, the agent isnt visiting all the packages
+\backslash
+delivery locations, or visits a delivery location before he visits its package
+ location (meaning we will have a package we didnt deliverr) so the output
+ path isnt a valid solution to the SAPD problem.
+\end_layout
+
+\begin_layout Standard
+\noindent
+Verifier Time complexity:
+\end_layout
+
+\begin_layout Standard
+\noindent
+checking if all the packge
+\backslash
+delivery location in the path (worst case we have 
+\begin_inset Formula $n=O(V)$
+\end_inset
+
+ pickups and delivery locations (all nodes are both), so we will need to
+ check all the verticies concluding to 
+\begin_inset Formula $2*O(V^{2})$
+\end_inset
+
+.
+ For the last part of the Verifier we will pay 
+\begin_inset Formula $O(V^{2})$
+\end_inset
+
+ as well.
+ concluding to the 
+\begin_inset Formula $Verifier$
+\end_inset
+
+ being in polynomial time.
+\end_layout
+
+\begin_layout Standard
+\noindent
+(in the worst case the output path will have all the vertices).
+\end_layout
+
+\begin_layout Standard
+\noindent
+from the Verifier Theorem we can conclude that 
+\begin_inset Formula $\text{SAPD}\in NP$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\noindent
+now lets show that its in 
+\begin_inset Formula $NP-HARD$
+\end_inset
+
+ using reduction:
+\end_layout
+
+\begin_layout Standard
+\noindent
+Intuition:
+\end_layout
+
+\begin_layout Standard
+\noindent
+travelling salesman problem (TSP), asks the following question: "Given a
+ list of cities and the distances between each pair of cities, what is the
+ shortest possible route that visits each city exactly once and returns
+ to the origin city?" (wikipedia).
+\end_layout
+
+\begin_layout Standard
+\noindent
+The TSP problem is formulated as:
+\end_layout
+
+\begin_layout Standard
+\noindent
+Input: a graph G, set of locations 
+\begin_inset Formula $\left\{ L_{1},\ldots,L_{n}\right\} \in V_{G}$
+\end_inset
+
+, distance function
+\end_layout
+
+\begin_layout Standard
+\noindent
+Output: Hamiltonian circle between 
+\begin_inset Formula $\left\{ L_{1},\ldots,L_{n}\right\} $
+\end_inset
+
+ - a path that visits each vertex excatly once, and returns to the origin
+ vertex, with minimal distance.
+\end_layout
+
+\begin_layout Standard
+\noindent
+as we see its not very far from our own problem - find the shortest path
+ in the graph, that visitis all the Pickup, and Delivery locations in the
+ graph.
+\end_layout
+
+\begin_layout Standard
+\noindent
+Restateing the TSP to be more similar to SAPD porblem:
+\end_layout
+
+\begin_layout Standard
+\noindent
+Input: A graph 
+\begin_inset Formula $G$
+\end_inset
+
+, set of locations 
+\begin_inset Formula $\left\{ L_{1},\ldots,L_{n}\right\} \in V_{G}$
+\end_inset
+
+ where each location has both a pickup point and a delivery point.
+ A distance function 
+\backslash
+(d
+\backslash
+) that gives the distance between any two locations.
+\end_layout
+
+\begin_layout Standard
+\noindent
+Task: Find the shortest tour that visits each pickup point and its corresponding
+ delivery point exactly once and returns to the starting location.
+\end_layout
+
+\begin_layout Standard
+\noindent
+Reduction: Given an instance of the TSP with pickup and delivery, we construct
+ an instance of the SAPD as follows:
+\end_layout
+
+\begin_layout Standard
+\noindent
+1.
+ For each pickup and delivery pair in the TSP instance, create a single
+ location in the SAPD instance.
+ This location represents both the pickup and delivery points.
+\end_layout
+
+\begin_layout Standard
+\noindent
+2.
+ Connect the locations in the SAPD instance with edges representing the
+ distances between the corresponding pickup and delivery pairs in the TSP
+ instance.
+ ( similar to the mst creation in our code)
+\end_layout
+
+\begin_layout Standard
+\noindent
+3.
+ Assign zero costs to all edges in SAPD instance.
+\end_layout
+
+\begin_layout Standard
+\noindent
+The resulting SAPD instance essentially preserves the structure of the TSP
+ with pickup and delivery.
+ 
+\end_layout
+
+\begin_layout Standard
+\noindent
+Solving the SAPD instance optimally is equivalent to solving the TSP with
+ pickup and delivery optimally, as the zero costs ensure that visiting each
+ location is the same as visiting the corresponding pickup and delivery
+ points in the TSP instance.
+\end_layout
+
+\begin_layout Standard
+\noindent
+Since the TSP with pickup and delivery is NP-hard, and solving it allows
+ us to solve the SAPD optimally, we can conclude that the SAPD is also NP-hard.
+\end_layout
+
+\begin_layout Standard
+\noindent
+Correctness:
+\end_layout
+
+\begin_layout Standard
+\noindent
+We want to show that output in the Package-Delivery TSP instance is True
+ iff the output to the SAPD problem is True.
+ by True meaning the path is correct according to each problem defnition.
+\end_layout
+
+\begin_layout Standard
+\noindent
+if the output of the Package-Delivery TSP is True, meaning the output path
+ visits all the package
+\backslash
+delivery vertices, making it a correct output to the SAPD problem.
+\end_layout
+
+\begin_layout Standard
+\noindent
+if the output of the Package-Delivery TSP is False, meaning the output path
+ not visits all the package
+\backslash
+delivery vertices, making it not sutiable solution to the SAPD problem,
+ because there must be a package we didnt collect or didnt deliver.
+\end_layout
+
+\begin_layout Standard
+\noindent
+This reduction demonstrates that the SAPD is at least as hard as the NP-hard
+ TSP with pickup and delivery, establishing its NP-hardness.
+\end_layout
+
+\end_body
+\end_document

@@ -45,12 +45,13 @@ def start_game(env):
         for agent in env.agents:
             print(agent.agent_letter() + " Turn")
             agent.take_action()
-            env.counter = env.counter + 1
             env.update_future_packages()
             print_board(env)
-            print("env counter: "+ str(env.counter))
+            env.counter = env.counter + 1
+            print("Current Status:")
+            print("Time: "+ str(env.counter))
             print(agent.agent_letter()+  " Current Score: " + str(agent.score))
-# str(agent.id)+
+            print(agent.agent_letter() + " Currently holds:" + str(len(agent.packages)) + " Packages" )
             # greedy agent keep getting stuck
             
     print("Final ScoreBoard:") #str(agent.id)+
