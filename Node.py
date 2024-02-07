@@ -1,12 +1,24 @@
 from copy import deepcopy
+from enum import Enum 
+
+class Package_state(Enum):
+    NOT_SHOWN = 1
+    NOT_TAKEN = 2
+    TAKEN = 3
+    DELIVERED = 4
+
+#Package_State = Enum(NOT_SHOWN = 1
+#                     NOT_TAKEN = 2
+#                     TAKEN = 3
+#                     DELIVERED = 4)
 
 class Node:
     def __init__(self, state_location, env, agent_packages, parent=None, g=0, h=0):
         self.state_location = state_location
         self.parent = parent
-        self.packages,  self.agent_packages = set(), set()
-        self.delivered_packages = set()
-        
+        #self.packages,  self.agent_packages = set(), set()
+        #self.delivered_packages = set()
+        self.packages = dict()
         self.g = g  # cost from start node to current node
         self.h = h  # heuristic cost from current node to goal node
 
@@ -23,50 +35,44 @@ class Node:
     # maybe save one matrix for packages taken, and one for the rest ? 
     def update_packages_and_deliveries(self, env, agent_packages):
         #is_ok = True
-        # add - check packages time - 
-        # if still not showing - don't take 
-        # if deadline passed - don't take 
-        # show all packages all time 
+    #        NOT_SHOWN = 1
+    #NOT_TAKEN = 2
+    #TAKEN = 3
+    #DELIVERED = 4
 
         #maybe return when package didn't deliverd on time
-        if self.parent is not None: 
-            for package in self.parent.packages:
+        if self.parent is not None: ## update packages from parent state
+
+            for package, package_state in self.parent.packages.items(): 
                 #check if package can still be delivered 
                 if package.deadline < self.g + env.counter:
                     return False
-                self.packages.add(package)
-                
-
-            for package in self.parent.agent_packages:
-                if package.deadline < self.g + env.counter:
-                    return False
-                self.agent_packages.add(package)
-
-
-            for package in self.parent.delivered_packages:
-                self.delivered_packages.add(package)
-            
-            #self.packages = deepcopy(prev_state.packages)
-            #self.agent_packages = deepcopy(prev_state.agent_packages)
+                if package_state == Package_state.NOT_SHOWN and package.start_time <= self.g + env.counter:
+                    self.packages[package] = Package_state.NOT_TAKEN
+                self.packages[package] = self.parent.packages[package]
 
             for package in env.get_packages(self.state_location, env.counter + self.g):
-                if package not in self.delivered_packages and package not in self.agent_packages:
-                    self.agent_packages.add(package)
-                    self.packages.remove(package)
+                package_state = self.packages[package]
+                if package_state != Package_state.DELIVERED and package_state != Package_state.TAKEN:
+                    self.packages[package] = Package_state.TAKEN
 
             #packge_delivered = set()
-            for package in self.agent_packages:
-                if self.state_location == package.dst_location:
-                    self.delivered_packages.add(package)
-            self.agent_packages.difference_update(self.delivered_packages)
-        else:
+            #for package in self.agent_packages:
+            for package,package_state in self.packages.items():
+                if package_state ==  Package_state.TAKEN and self.state_location == package.dst_location :
+    #self.delivered_packages.add(package)
+                    self.packages[package] = Package_state.DELIVERED
+            #self.agent_packages.difference_update(self.delivered_packages)
+        else: # new state
             for package in env.packages:
-                self.packages.add(package)            
-            #self.packages = deepcopy(env.packages)
+                if package.start_time <= env.counter:
+                    self.packages[package] = Package_state.NOT_TAKEN 
+                else:
+                    self.packages[package] = Package_state.NOT_SHOWN
+        #self.packages = deepcopy(env.packages)
 
             for package in agent_packages:
-                self.agent_packages.add(package)
-                self.packages.remove(package)
+                self.packages[package] = Package_state.TAKEN 
         return True
 
     def break_fragile_edges(self, env):
@@ -91,5 +97,28 @@ class Node:
 
         return count
 
+    def compare_node(self, node):
+        if self.state_location == node.state_location:
+            if len(self.fragile_broken_edges.difference(node.fragile_broken_edges)) == 0:
+                if self.packages == node.packages:
+                    return True
+        return False
 
+    def get_rel_vertices(self):
+        rel_ver = set()
+        
+        for package, package_state in self.packages.items():
+            if package_state == Package_state.NOT_TAKEN or  package_state == Package_state.NOT_SHOWN:
+                rel_ver.add(package.cur_location)
+                rel_ver.add(package.dst_location)
+
+        rel_ver.add(self.state_location)
+
+        return rel_ver
+
+    def is_goal_state(self):
+        for package,package_state in self.packages.items():
+            if package_state!=Package_state.DELIVERED:
+                return False
+        return True
         

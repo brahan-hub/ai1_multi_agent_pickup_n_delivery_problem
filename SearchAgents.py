@@ -5,7 +5,7 @@ import sys
 import heapq
 import State
 import Agents
-from Node import Node
+from Node import Node, Package_state
 
 T_TIME_EVALUATION = 0.0001
 
@@ -21,7 +21,7 @@ class SearchAgent(Agents.AbstractAgent):
         pass
     
     def heuristic_function(self, u_node):
-        cur_rel_vertices = self.get_rel_vertices(u_node)
+        cur_rel_vertices = u_node.get_rel_vertices()
         important_vertices_distance_matrix = dict()
         important_vertices_distance_matrix = dict.fromkeys(list(cur_rel_vertices))
         for vertex in cur_rel_vertices:
@@ -30,19 +30,6 @@ class SearchAgent(Agents.AbstractAgent):
         ## build mst:
         return self.minimum_spanning_tree(important_vertices_distance_matrix,u_node.state_location)
 
-
-    def get_rel_vertices(self, u_node):
-        rel_ver = set()
-        
-        for package in u_node.packages:
-            rel_ver.add(package.cur_location)
-            rel_ver.add(package.dst_location)
-            
-        for packge in u_node.agent_packages:
-            rel_ver.add(packge.dst_location)
-        rel_ver.add(u_node.state_location)
-
-        return rel_ver
 
 
     def min_distances(self, distance_dict,start_location):
@@ -88,10 +75,11 @@ class SearchAgent(Agents.AbstractAgent):
         return total_mst_distance
     
     
-    def is_goal_location(self, node):
-        if len(node.agent_packages) == 0 and len(node.packages) == 0:
-            return True
-        return False
+    #def is_goal_location(self, node):
+    #    if len(node.agent_packages) == 0 and len(node.packages) == 0:
+    #    return 
+    #        return True
+    #    return False
 
     def get_neighbors_with_bonus(self, current_node):
         neighbors = self.get_neighbors(current_node.state_location)
@@ -115,23 +103,18 @@ class SearchAgent(Agents.AbstractAgent):
         start_node = Node(self.cur_location, self.environment,self.packages, None ,0,0)
         heapq.heappush(open_set, (start_node.f(), id(start_node), start_node))
 
-        while open_set:
+        while open_set and counter < limit:
             _, _,current_node = heapq.heappop(open_set)
 
-            if self.is_goal_location(current_node) or counter >= limit:
+            if current_node.is_goal_state():
                 path = []
                 while current_node:
                     path.append(current_node.state_location)
                     current_node = current_node.parent
                 return counter, path[::-1]
             if current_node.state_location in closed_set:
-                #print("TTT before: ", current_node.g ,closed_set[current_node.state_location], current_node.f())
-                if closed_set[current_node.state_location].f() < current_node.f() and closed_set[current_node.state_location].h <= current_node.h :
-                    #print("TTT inside if: ", current_node.g ,closed_set[current_node.state_location], current_node.f())
+                if current_node.compare_node(closed_set[current_node.state_location]) and closed_set[current_node.state_location].f() <= current_node.f():
                     continue
-              ##  if current_node.state_location in closed_set and closed_set[current_node.state_location] <= current_node.f():
-                ##    print("inside if: ", current_node.g ,closed_set[current_node.state_location], current_node.f())
-                  ##  continue
                
             closed_set[current_node.state_location] = current_node
 
