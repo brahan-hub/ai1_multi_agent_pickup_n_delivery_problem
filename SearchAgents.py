@@ -92,42 +92,63 @@ class SearchAgent(Agents.AbstractAgent):
         if len(node.agent_packages) == 0 and len(node.packages) == 0:
             return True
         return False
+
+    def get_neighbors_with_bonus(self, current_node):
+        neighbors = self.get_neighbors(current_node.state_location)
+
+        removed_neighbors = set()
+        for neighbor in neighbors:
+            for edge in current_node.fragile_broken_edges:
+                if current_node.state_location in edge and neighbor in edge:
+                        removed_neighbors.add(neighbor)
+        neighbors.difference_update(removed_neighbors)
+        return neighbors
+
+
+    # add set of fragile, that the sabuter can break on it's way
             
-    def search_optimal_path(self,limit=10000): # A* limit should be global constant
+    def search_optimal_path(self, limit=10000): # A* limit should be global constant
         open_set = []
         closed_set = {}
         counter = 0
-
-        start_node = Node(self.cur_location, self.environment, self.packages)
+        #check if needs to 
+        start_node = Node(self.cur_location, self.environment,self.packages, None ,0,0)
         heapq.heappush(open_set, (start_node.f(), id(start_node), start_node))
 
         while open_set:
             _, _,current_node = heapq.heappop(open_set)
 
-            if self.is_goal_location(current_node) or counter == limit:
+            if self.is_goal_location(current_node) or counter >= limit:
                 path = []
                 while current_node:
                     path.append(current_node.state_location)
                     current_node = current_node.parent
-                return limit, path[::-1]
-
-            if current_node.state_location in closed_set and closed_set[current_node.state_location] >= g:
+                return counter, path[::-1]
+            if current_node.state_location in closed_set:
+                #print("TTT before: ", current_node.g ,closed_set[current_node.state_location], current_node.f())
+                if closed_set[current_node.state_location].f() < current_node.f() and closed_set[current_node.state_location].h <= current_node.h :
+                    #print("TTT inside if: ", current_node.g ,closed_set[current_node.state_location], current_node.f())
                     continue
-                
-            closed_set[current_node.state_location] = current_node.g
+              ##  if current_node.state_location in closed_set and closed_set[current_node.state_location] <= current_node.f():
+                ##    print("inside if: ", current_node.g ,closed_set[current_node.state_location], current_node.f())
+                  ##  continue
+               
+            closed_set[current_node.state_location] = current_node
 
-            for neighbor_location in self.get_neighbors(current_node.state_location):
+
+
+            for neighbor_location in self.get_neighbors_with_bonus(current_node):
                 g = current_node.g + 1
-                
+
                 neighbor_node = Node(neighbor_location, self.environment,self.packages, current_node,g,0)
-                
+
                 neighbor_node.h = self.heuristic_function(neighbor_node)
                 
                 heapq.heappush(open_set, (neighbor_node.f(), id(neighbor_node), neighbor_node))
 
             counter += 1
 
-        return limit, None    
+        return counter, None    
 
 ##### ____________________________________________________________________ #####
 
@@ -150,7 +171,6 @@ class GreedySearchAgent(SearchAgent):
                 self.environment.break_fragile_edge(self.cur_location, path[1])
                 self.cur_location = path[1]
                 self.handle_packages_and_deliveries()
-                self.update_package_location()
                 
         return None
 
@@ -175,7 +195,7 @@ class AStarSearchAgent(SearchAgent):
                 self.environment.break_fragile_edge(self.cur_location, path[1])
                 self.cur_location = path[1]
                 self.handle_packages_and_deliveries()
-                self.update_package_location()                
+                #self.update_package_location()                
 
 
 ##### ____________________________________________________________________ #####
@@ -200,14 +220,7 @@ class RealTimeAStarSearchAgent(AStarSearchAgent):
                 self.environment.break_fragile_edge(self.cur_location, path[1])
                 self.cur_location = path[1]
                 self.handle_packages_and_deliveries()
-                self.update_package_location()
-
-
-
-
-### greedy search agent not working 
-### need to add evaluation 
-### need to check that packages are showing 
+                #self.update_package_location()
 
 
 

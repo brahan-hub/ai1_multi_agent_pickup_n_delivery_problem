@@ -5,16 +5,21 @@ import Package
 from abc import ABC, abstractmethod
 
 ##### _________________________ ABSTRACT AGENT _________________________ #####
+# NUM_OF_AGENTS = 0
 
 class AbstractAgent:
-    
+    # n_agents = 0
     def __init__(self, start_x, start_y,environment):
         self.cur_location = (start_x,start_y)
         self.score = 0
         self.packages = set()
         self.environment = environment
+        # self.n_agents +=1
+        # NUM_OF_AGENTS +=1
+        # self.id = AbstractAgent.n_agents
 
-
+        
+    # def set_id(self):
         
     @abstractmethod
     def agent_letter(self):
@@ -32,10 +37,10 @@ class AbstractAgent:
     def get_neighbors(self, position):
         x, y = position
         optinal_neighbors = set(((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)))
-        neighbors = []
+        neighbors = set()
         for neighbor in optinal_neighbors:
             if self.check_if_valid_location(position, neighbor):
-                neighbors.append(neighbor)
+                neighbors.add(neighbor)
 
         return neighbors
 
@@ -56,6 +61,9 @@ class AbstractAgent:
 
 
     def handle_packages_and_deliveries(self):
+        for package in self.packages:
+            package.cur_location = self.cur_location
+
         if self.environment.check_if_has_package(self.cur_location):
             packages = self.environment.get_packages(self.cur_location)
             for package in packages:
@@ -76,10 +84,13 @@ class AbstractAgent:
             self.packages.remove(package)
             self.environment.packages.remove(package)
 
+        
 
-    def update_package_location(self):
-        for package in self.packages:
-            package.cur_location = self.cur_location
+    #def update_package_location(self):
+    #    for package in self.packages:
+    #        package.cur_location = self.cur_location
+
+    
         
         
 ##### _______________________________________________________________ #####
@@ -160,7 +171,7 @@ class HumanAgent(Agent):
             raise ValueError(f"Unknown action: {action}")
 
         self.handle_packages_and_deliveries()
-        self.update_package_location()
+        #self.update_package_location()
         self.environment.break_fragile_edge(curr_pos, self.cur_location)
     # check if location has package / delivery and do something about it
     # in the general area 
@@ -187,7 +198,7 @@ class GreedyAgent(Agent):
                 self.environment.break_fragile_edge(self.cur_location, path[1])
                 self.cur_location = path[1]
                 self.handle_packages_and_deliveries()
-                self.update_package_location()
+        
     
                 
     def is_goal_location(self, current): ## current == package coordinate
@@ -207,7 +218,6 @@ class SaboteurAgent(Agent):
     def __init__(self, start_x, start_y,environment):
         super().__init__(start_x, start_y,environment)
         self.other_coordinate = None
-
     
     def agent_letter(self):
         return 'I'
@@ -217,22 +227,33 @@ class SaboteurAgent(Agent):
         for edge in self.environment.fragile_edges:
             if current in edge:
                 self.other_coordinate = edge[len(edge) - edge.index(current) -1]
-                return True
+                if self.check_if_valid_location(current, self.other_coordinate):
+                    return True
         return False
-    
-    def take_action(self):
+
+    def calc_next_action(self):
         """
         Plan the path for the agent using Dijkstra's algorithm.
         """
         if len(self.environment.fragile_edges) == 0: ## add this check in the agent movement function
-            return
+            return self.cur_location
         path = self.dijkstra() ## strategy
         if path:
             if len(path) == 1:
-                
-                self.environment.break_fragile_edge(self.cur_location, self.other_coordinate)
-                self.cur_location = self.other_coordinate
+                #self.environment.break_fragile_edge(self.cur_location, self.other_coordinate)
+                return self.other_coordinate
             else:
-                self.cur_location = path[1]  # not arrived to edge
+                return path[1]  # not arrived to edge
+
+        return self.cur_location
+
+    def take_action(self):
+        next_step = self.calc_next_action()
+        self.environment.break_fragile_edge(self.cur_location, next_step)
+        self.cur_location = next_step
+
+        
+
+
 
     

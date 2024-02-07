@@ -31,7 +31,7 @@ def print_board(environment):
     for blocked_edge in environment.blocked_edges:
         grid[blocked_edge[0][1]+blocked_edge[1][1]][blocked_edge[0][0]+blocked_edge[1][0]] =  "#"
     for fragile_edge in environment.fragile_edges:
-        grid[blocked_edge[0][1]+blocked_edge[1][1]][blocked_edge[0][0]+blocked_edge[1][0]] =  "/"
+        grid[fragile_edge[0][1]+fragile_edge[1][1]][fragile_edge[0][0]+fragile_edge[1][0]] =  "/"
     for row in reversed(grid): ## print the grid where 0,0 is bottom left
         print(" ".join(row))
     print("blocked edges: ", environment.blocked_edges)
@@ -40,18 +40,23 @@ def print_board(environment):
     
 
 def start_game(env):
+
+    #update 
+    for agent in env.agents:
+        agent.handle_packages_and_deliveries()
+
     print_board(env)
     while not env.is_game_over():
         for agent in env.agents:
             print(agent.agent_letter() + " Turn")
             agent.take_action()
-            env.update_future_packages()
-            print_board(env)
             env.counter = env.counter + 1
-            print("Current Status:")
-            print("Time: "+ str(env.counter))
+            env.update_max_game_time()
+            #env.update_future_packages()
+            print_board(env)
+            print("env counter: "+ str(env.counter))
             print(agent.agent_letter()+  " Current Score: " + str(agent.score))
-            print(agent.agent_letter() + " Currently holds:" + str(len(agent.packages)) + " Packages" )
+# str(agent.id)+
             # greedy agent keep getting stuck
             
     print("Final ScoreBoard:") #str(agent.id)+
@@ -64,7 +69,7 @@ def main():
 
     print("Initial Board:")
     environment.update_max_game_time()
-    environment.update_future_packages()
+    #environment.update_future_packages()
     
     # for agent in environment.agents:
         
@@ -75,12 +80,5 @@ def main():
 if __name__ == "__main__":
     main()
 
-## todo: fix the printing - last
-
-## todo: game counter - each move by agent increase by 1
-## todo: the score
-## todo: game time
-## todo: decide what happens if deadline have passed
-
-## todo: check if agents work
-## todo: agents time calc
+## todo: add time to packages 
+## add function that take "fake" action for vandel 
