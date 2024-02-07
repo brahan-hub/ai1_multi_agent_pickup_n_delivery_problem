@@ -17,7 +17,7 @@ class State:
             
             
         def update_prev_state(self, prev_state):
-            self.prev_state = copy.deepcopy(prev_state)
+            self.prev_state = copy.copy(prev_state)
             
             
         # def update_state(self, n_state):

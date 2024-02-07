@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import deepcopy,copy
 from enum import Enum 
 
 class Package_state(Enum):
@@ -79,8 +79,8 @@ class Node:
         if self.parent is not None:
 
             #copy the broken fragile edges
-            self.fragile_broken_edges = deepcopy(self.parent.fragile_broken_edges)
-
+            self.fragile_broken_edges = copy(self.parent.fragile_broken_edges)
+            
             # check if the greedy agent broke any fragile edge 
             for edge in env.fragile_edges.difference(self.fragile_broken_edges):
                 #check if agent broke fragile edge 
@@ -97,13 +97,14 @@ class Node:
 
         return count
 
-    def compare_node(self, node):
-        if self.state_location == node.state_location:
-            if len(self.fragile_broken_edges.difference(node.fragile_broken_edges)) == 0:
-                if self.packages == node.packages:
+    def __eq__(self, __other: object) -> bool:
+        if self.state_location == __other.state_location:
+            if len(self.fragile_broken_edges.difference(__other.fragile_broken_edges)) == 0:
+                if self.packages == __other.packages:
                     return True
         return False
 
+    
     def get_rel_vertices(self):
         rel_ver = set()
         
@@ -121,4 +122,10 @@ class Node:
             if package_state!=Package_state.DELIVERED:
                 return False
         return True
-        
+    
+
+    def f_eval_function(node):
+        return node.g + node.h
+
+    def h_eval_function(node):
+        return node.h       

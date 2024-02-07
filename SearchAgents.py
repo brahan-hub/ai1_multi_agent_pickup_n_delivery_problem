@@ -5,6 +5,7 @@ import sys
 import heapq
 import State
 import Agents
+import Node
 from Node import Node, Package_state
 
 T_TIME_EVALUATION = 0.0001
@@ -95,7 +96,7 @@ class SearchAgent(Agents.AbstractAgent):
 
     # add set of fragile, that the sabuter can break on it's way
             
-    def search_optimal_path(self, limit=10000): # A* limit should be global constant
+    def search_optimal_path(self, eval_function ,limit=10000): # A* limit should be global constant
         open_set = []
         closed_set = {}
         counter = 0
@@ -113,7 +114,7 @@ class SearchAgent(Agents.AbstractAgent):
                     current_node = current_node.parent
                 return counter, path[::-1]
             if current_node.state_location in closed_set:
-                if current_node.compare_node(closed_set[current_node.state_location]) and closed_set[current_node.state_location].f() <= current_node.f():
+                if current_node != closed_set[current_node.state_location] and eval_function(closed_set[current_node.state_location]) <= eval_function(current_node):
                     continue
                
             closed_set[current_node.state_location] = current_node
@@ -127,7 +128,7 @@ class SearchAgent(Agents.AbstractAgent):
 
                 neighbor_node.h = self.heuristic_function(neighbor_node)
                 
-                heapq.heappush(open_set, (neighbor_node.f(), id(neighbor_node), neighbor_node))
+                heapq.heappush(open_set, (eval_function(neighbor_node), id(neighbor_node), neighbor_node))
 
             counter += 1
 
@@ -148,7 +149,7 @@ class GreedySearchAgent(SearchAgent):
     
     def take_action(self):
         if len(self.environment.packages) != 0:
-            limit, path = self.search_optimal_path(1)
+            limit, path = self.search_optimal_path(eval_function = Node.h_eval_function,limit=1)
             
             if path is not None:
                 self.environment.break_fragile_edge(self.cur_location, path[1])
@@ -172,7 +173,7 @@ class AStarSearchAgent(SearchAgent):
            
     def take_action(self):
         if len(self.environment.packages) != 0:
-            limit, path = self.search_optimal_path()
+            limit, path = self.search_optimal_path(eval_function = Node.f_eval_function)
             print("A* search agent took: ", limit, " Expensiosn to reach goal, it took him: ", limit * T_TIME_EVALUATION, "To find path")
             if path is not None:
                 self.environment.break_fragile_edge(self.cur_location, path[1])
@@ -195,7 +196,7 @@ class RealTimeAStarSearchAgent(AStarSearchAgent):
 
     def take_action(self):
         if len(self.environment.packages) != 0:
-            limit, path = self.search_optimal_path(self.L)
+            limit, path = self.search_optimal_path(eval_function=Node.f_eval_function,limit= self.L)
             print("Real time A* search agent took: ", limit * T_TIME_EVALUATION, "To find path")
             self.environment.counter += limit * T_TIME_EVALUATION
             
