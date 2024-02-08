@@ -76,8 +76,11 @@ class SearchAgent(Agents.AbstractAgent):
         return total_mst_distance
     
 
-    def get_neighbors(self, current_state, state_blocked_edges):
+    def get_neighbors(self, current_state, state_blocked_edges, is_bonus = False, saboteur_location = None):
         neighbors = super().get_neighbors(current_state)
+        if is_bonus:
+            if saboteur_location in neighbors:
+                neighbors.remove(saboteur_location)
 
         removed_neighbors = set()
         for neighbor in neighbors:
@@ -94,8 +97,7 @@ class SearchAgent(Agents.AbstractAgent):
         open_set = []
         closed_set = {}
         counter = 0
-
-        # Realtime not working 
+        is_bonus = self.environment.bonus
 
         #check if needs to 
         start_node = Node(self.cur_location, self.environment,self.packages, None ,0,0)
@@ -116,9 +118,10 @@ class SearchAgent(Agents.AbstractAgent):
                
             closed_set[current_node.state_location] = current_node
 
+            #bonus 
 
 
-            for neighbor_location in self.get_neighbors(current_node.state_location, current_node.fragile_broken_edges):
+            for neighbor_location in self.get_neighbors(current_node.state_location, current_node.fragile_broken_edges, is_bonus, current_node.saboteur_location):
                 g = current_node.g + 1
 
                 neighbor_node = Node(neighbor_location, self.environment,self.packages, current_node,g,0)

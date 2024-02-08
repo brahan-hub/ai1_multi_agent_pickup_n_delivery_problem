@@ -1,4 +1,5 @@
 from Package import Package
+import Agents
 import sys
 
 class Environment:
@@ -28,6 +29,12 @@ class Environment:
     def is_game_over(self):
         return len(self.packages) == 0 or self.counter >= self.closest_deadline
 
+    def bonus_saboteur_location(self):
+        if self.bonus:
+            for agent in self.agents:
+                if isinstance(agent, Agents.SaboteurAgent):
+                    return agent.cur_location
+        return None
 
     def get_packages(self, location, curr_time = None):
         if curr_time == None:

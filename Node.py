@@ -1,5 +1,6 @@
 from copy import deepcopy,copy
 from enum import Enum 
+import Agents
 
 class Package_state(Enum):
     NOT_SHOWN = 1
@@ -23,14 +24,35 @@ class Node:
         self.h = h  # heuristic cost from current node to goal node
 
         #bonus state 
+        self.saboteur_location = None
         self.fragile_broken_edges = set()
+        self.is_bonus = env.bonus
 
         self.is_valid_node = self.update_packages_and_deliveries(env, agent_packages)
         self.break_fragile_edges(env)
+        if env.bonus:
+            self.bonus_saboteur_next_step(env)
 
     def f(self):
         return self.g + self.h
 
+    def bonus_saboteur_next_step(self, env):
+        if self.parent is None:
+            self.saboteur_location = env.bonus_saboteur_location()
+        else:
+            greedy_agent = Agents.SaboteurBonusAgent(self.parent.saboteur_location[0], self.parent.saboteur_location[1], env, self.fragile_broken_edges)
+            next_greedy_step = greedy_agent.get_next_action()
+            if next_greedy_step != self.state_location and next_greedy_step != self.parent.saboteur_location:
+                self.saboteur_location = next_greedy_step
+
+                for edge in env.fragile_edges.difference(self.fragile_broken_edges):
+                    if self.saboteur_location in edge:
+                        if self.parent.saboteur_location == edge[len(edge) - edge.index(self.saboteur_location) -1]:
+                            self.fragile_broken_edges.add(edge)
+
+            else:
+                self.saboteur_location = env.bonus_saboteur_location()
+        
     # not sure maybe a way to do it better ? 
     # maybe save one matrix for packages taken, and one for the rest ? 
     def update_packages_and_deliveries(self, env, agent_packages):
@@ -84,15 +106,6 @@ class Node:
                 if self.state_location in edge:
                     if self.parent.state_location == edge[len(edge) - edge.index(self.state_location) -1]:
                         self.fragile_broken_edges.add(edge)
-
-    def get_rel_ver_num(self):
-        count = 0
-
-        count += len(self.packages) * 2
-        count += len(self.agent_packages)
-        count += 1
-
-        return count
 
     def can_deliver_on_time(self, package, package_state, time):
         manhattan_distance = lambda a, b: sum(abs(val1-val2) for val1, val2 in zip(a,b))

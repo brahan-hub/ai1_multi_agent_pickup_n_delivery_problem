@@ -250,6 +250,43 @@ class SaboteurAgent(Agent):
             self.cur_location = next_step
 
         
+class SaboteurBonusAgent(SaboteurAgent):
+    
+    def __init__(self, start_x, start_y,environment, fragile_edges):
+        super().__init__(start_x, start_y,environment)
+        self.fragile_broken_edges = fragile_edges
+       
+    def is_goal_location(self, current ): ## current == package coordinate
+        #if not self.environment.fragile_edges.isEmpty(): ## add this check in the agent movement function
+        for edge in self.environment.fragile_edges.difference(self.fragile_broken_edges):
+            if current in edge:
+                self.other_coordinate = edge[len(edge) - edge.index(current) -1]
+                if self.check_if_valid_location(current, self.other_coordinate):
+                    return True
+        return False
+    
+
+    #def check_if_valid_location(self, old_position, new_position):
+    #    if 0 <= new_position[0] <= self.environment.max_x and 0 <= new_position[1] <= self.environment.max_y:
+    #        if not (old_position, new_position) in self.environment.blocked_edges and not (new_position, old_position) in self.environment.blocked_edges:
+    #            if not (old_position == self.cur_location and new_position == self.other_agent_location):
+    #                return True
+
+    #    return False
+
+    def get_neighbors(self, position):
+        neighbors = super().get_neighbors(position)
+
+        removed_neighbors = set()
+        for neighbor in neighbors:
+            for edge in self.fragile_broken_edges:
+                if self.cur_location in edge and neighbor in edge:
+                        removed_neighbors.add(neighbor)
+        neighbors.difference_update(removed_neighbors)
+        return neighbors
+
+    def get_next_action(self):
+        return self.calc_next_action()
 
 
 
