@@ -6,17 +6,15 @@ class Package:
         self.start_time = start_time
         self.deadline = deadline
         
-    ## add function to check if a given location is holding a package or a delivery location for the package
-
     def check_package_cur_location(self, location):
-        if location == self.cur_location:
-            return True
-        return False
+        return location == self.cur_location
+
     
     def check_package_dst_location(self, location):
-        if location == self.dst_location:
-            return True
-        return False
+        return location == self.dst_location
+
+    def update_package_location(self,new_location):
+        self.cur_location = new_location
 
 
 

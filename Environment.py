@@ -5,13 +5,9 @@ import sys
 class Environment:
 
     def __init__(self, max_x, max_y):
-        self.max_x = max_x
-        self.max_y = max_y
+        self.max_x, self.max_y= max_x,max_y
+        self.fragile_edges,self.packages,self.agents = set(),set(),set()
         self.blocked_edges = []
-        self.fragile_edges = set()
-        self.packages = set()
-        #self.future_packages = set()
-        self.agents = set()
         self.counter = 0
         self.closest_deadline = sys.maxsize
         self.bonus = False
@@ -45,6 +41,10 @@ class Environment:
                 packages.add(package)
         return packages
 
+    def remove_package(self, package):
+        self.packages.remove(package)
+        # for agent in self.agents
+        
     def check_if_has_package(self, position):
         for package in self.packages:
             if package.check_package_cur_location(position) and package.start_time <= self.counter:
@@ -70,11 +70,6 @@ class Environment:
                 return True
         return False
 
-    #def update_future_packages(self):
-    #    for future_package in self.future_packages:
-    #        if future_package.start_time <= self.counter:
-    #            self.packages.add(future_package)
-    #    self.future_packages.difference_update(self.packages)
 
     def break_fragile_edge(self, old_position, new_position):
         if (old_position, new_position) in self.fragile_edges:
@@ -84,3 +79,14 @@ class Environment:
         if (new_position, old_position) in self.fragile_edges:
             self.fragile_edges.remove((new_position, old_position))
             self.blocked_edges.append((new_position, old_position))
+    
+    def is_valid_move(self,new_location):
+        return all(agent.cur_location == new_location for agent in self.agents)
+
+
+        # self.max_x, self.max_y= max_x,max_y
+        # self.fragile_edges,self.packages,self.agents = set(),set(),set()
+        # self.blocked_edges = []
+        # self.counter = 0
+        # self.closest_deadline = sys.maxsize
+        # self.bonus = False

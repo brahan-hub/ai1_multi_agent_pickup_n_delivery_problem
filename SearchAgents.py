@@ -91,8 +91,6 @@ class SearchAgent(Agents.AbstractAgent):
         return neighbors
 
 
-    # add set of fragile, that the sabuter can break on it's way
-            
     def search_optimal_path(self, eval_function ,limit=10000): # A* limit should be global constant
         open_set = []
         closed_set = {}
@@ -126,11 +124,10 @@ class SearchAgent(Agents.AbstractAgent):
 
                 neighbor_node = Node(neighbor_location, self.environment,self.packages, current_node,g,0)
 
-                if not neighbor_node.is_valid_node:
+                if not neighbor_node.is_valid_node or self.environment.is_valid_move(neighbor_location):
                     continue
 
                 neighbor_node.h = self.heuristic_function(neighbor_node)
-                
                 heapq.heappush(open_set, (eval_function(neighbor_node), id(neighbor_node), neighbor_node))
 
             counter += 1
@@ -153,7 +150,6 @@ class GreedySearchAgent(SearchAgent):
     def take_action(self):
         if len(self.environment.packages) != 0:
             limit, path = self.search_optimal_path(eval_function = Node.h_eval_function,limit=1)
-            
             if path is not None and self.is_vertex_vacant(path[1]):
                 self.environment.break_fragile_edge(self.cur_location, path[1])
                 self.cur_location = path[1]
@@ -182,7 +178,6 @@ class AStarSearchAgent(SearchAgent):
                 self.environment.break_fragile_edge(self.cur_location, path[1])
                 self.cur_location = path[1]
                 self.handle_packages_and_deliveries()
-                #self.update_package_location()                
 
 
 ##### ____________________________________________________________________ #####
@@ -201,13 +196,11 @@ class RealTimeAStarSearchAgent(AStarSearchAgent):
         if len(self.environment.packages) != 0:
             limit, path = self.search_optimal_path(eval_function=Node.f_eval_function,limit= self.L)
             print("Real time A* search agent took: ", limit * T_TIME_EVALUATION, "To find path")
-            #self.environment.counter += limit * T_TIME_EVALUATION
             
             if path is not None and self.is_vertex_vacant(path[1]):
                 self.environment.break_fragile_edge(self.cur_location, path[1])
                 self.cur_location = path[1]
                 self.handle_packages_and_deliveries()
-                #self.update_package_location()
 
 
 

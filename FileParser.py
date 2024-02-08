@@ -9,7 +9,7 @@ def read_input_file(file_path):
     environment = None
     packages = []
     agents = []
-
+    bonus_flag = False
     with open(file_path, 'r') as file:
         for line in file:
             line = line.strip()
@@ -26,7 +26,6 @@ def read_input_file(file_path):
                 print(start_x, start_y,start_time, deliver_x, deliver_y, deadline)
                 package_id = str(len(environment.packages))
                 package = Package(package_id,int(start_x), int(start_y), int(deliver_x), int(deliver_y), int(start_time), int(deadline))
-                #environment.future_packages.add(package)
                 environment.packages.add(package)
             elif line.startswith("#B"):
                 _, x1, y1, x2, y2 = line.split()
@@ -48,6 +47,7 @@ def read_input_file(file_path):
                  _, start_x, start_y = line.split()
                  interfering_agent = Agents.SaboteurAgent(int(start_x), int(start_y), environment)
                  environment.agents.add(interfering_agent)
+                 bonus_flag = True
             elif line.startswith("#A"):
                  _, start_x, start_y = line.split()
                  search_agent = SearchAgents.AStarSearchAgent(int(start_x), int(start_y), environment)
@@ -60,7 +60,7 @@ def read_input_file(file_path):
                  _, start_x, start_y = line.split()
                  search_agent = SearchAgents.RealTimeAStarSearchAgent(int(start_x), int(start_y), environment)
                  environment.agents.add(search_agent)
-            elif line.startswith("#V"):
+            elif line.startswith("#V") and bonus_flag:
                 environment.bonus = True
 
 

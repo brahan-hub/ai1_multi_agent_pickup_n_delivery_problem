@@ -8,18 +8,13 @@ from abc import ABC, abstractmethod
 # NUM_OF_AGENTS = 0
 
 class AbstractAgent:
-    # n_agents = 0
+
     def __init__(self, start_x, start_y,environment):
         self.cur_location = (start_x,start_y)
         self.score = 0
         self.packages = set()
         self.environment = environment
-        # self.n_agents +=1
-        # NUM_OF_AGENTS +=1
-        # self.id = AbstractAgent.n_agents
 
-        
-    # def set_id(self):
         
     @abstractmethod
     def agent_letter(self):
@@ -51,40 +46,37 @@ class AbstractAgent:
                 return True
         return False
 
-
-    def handle_packages_and_deliveries(self):
-        for package in self.packages:
-            package.cur_location = self.cur_location
-
-        if self.environment.check_if_has_package(self.cur_location):
-            packages = self.environment.get_packages(self.cur_location)
-            for package in packages:
-                package.cur_location = self.cur_location
-                self.packages.add(package)
-
+    def deliver_package(self):
         packages_to_remove = list()
 
         for package in self.packages:
             if package.check_package_dst_location(self.cur_location):
-                # need to check deadline
                 print(f"package {package.id} had been deliveried at time: {package.deadline}" )
                 self.score+=1
                 packages_to_remove.append(package)
                 
-
         for package in packages_to_remove:
             self.packages.remove(package)
             self.environment.packages.remove(package)
+            
+        
+    def handle_packages_and_deliveries(self):
+        for package in self.packages:
+            package.update_package_location(self.cur_location)
+
+        if self.environment.check_if_has_package(self.cur_location):
+            packages = self.environment.get_packages(self.cur_location)
+            for package in packages:
+                package.update_package_location(self.cur_location)
+                self.packages.add(package)
+
+        self.deliver_package()
 
     def is_vertex_vacant(self, location):
         for agent in self.environment.agents:
             if agent.cur_location == location:
                 return False
         return True
-
-    #def update_package_location(self):
-    #    for package in self.packages:
-    #        package.cur_location = self.cur_location
 
     
         
@@ -167,10 +159,8 @@ class HumanAgent(Agent):
             raise ValueError(f"Unknown action: {action}")
 
         self.handle_packages_and_deliveries()
-        #self.update_package_location()
+
         self.environment.break_fragile_edge(curr_pos, self.cur_location)
-    # check if location has package / delivery and do something about it
-    # in the general area 
 
 
 ##### _______________________________________________________________ #####
@@ -219,7 +209,6 @@ class SaboteurAgent(Agent):
         return 'I'
        
     def is_goal_location(self, current ): ## current == package coordinate
-        #if not self.environment.fragile_edges.isEmpty(): ## add this check in the agent movement function
         for edge in self.environment.fragile_edges:
             if current in edge:
                 self.other_coordinate = edge[len(edge) - edge.index(current) -1]
@@ -228,15 +217,11 @@ class SaboteurAgent(Agent):
         return False
 
     def calc_next_action(self):
-        """
-        Plan the path for the agent using Dijkstra's algorithm.
-        """
-        if len(self.environment.fragile_edges) == 0: ## add this check in the agent movement function
+        if len(self.environment.fragile_edges) == 0:
             return self.cur_location
         path = self.dijkstra() ## strategy
         if path:
             if len(path) == 1:
-                #self.environment.break_fragile_edge(self.cur_location, self.other_coordinate)
                 return self.other_coordinate
             else:
                 return path[1]  # not arrived to edge
@@ -257,7 +242,6 @@ class SaboteurBonusAgent(SaboteurAgent):
         self.fragile_broken_edges = fragile_edges
        
     def is_goal_location(self, current ): ## current == package coordinate
-        #if not self.environment.fragile_edges.isEmpty(): ## add this check in the agent movement function
         for edge in self.environment.fragile_edges.difference(self.fragile_broken_edges):
             if current in edge:
                 self.other_coordinate = edge[len(edge) - edge.index(current) -1]
@@ -265,14 +249,6 @@ class SaboteurBonusAgent(SaboteurAgent):
                     return True
         return False
     
-
-    #def check_if_valid_location(self, old_position, new_position):
-    #    if 0 <= new_position[0] <= self.environment.max_x and 0 <= new_position[1] <= self.environment.max_y:
-    #        if not (old_position, new_position) in self.environment.blocked_edges and not (new_position, old_position) in self.environment.blocked_edges:
-    #            if not (old_position == self.cur_location and new_position == self.other_agent_location):
-    #                return True
-
-    #    return False
 
     def get_neighbors(self, position):
         neighbors = super().get_neighbors(position)

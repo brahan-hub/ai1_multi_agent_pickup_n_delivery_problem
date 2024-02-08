@@ -8,7 +8,8 @@ class SaboteurState():
     def check_if_broken_edge(self, prev_state):
         for edge in self.environment.fragile_edges:
             if self.cur_location in edge:
-                if prev_state.greedy_agent.cur_location == edge[len(edge) - edge.index(current) -1]:
+                cur_idx = edge.index(self.cur_location)
+                if prev_state.greedy_agent.cur_location == edge[len(edge) - cur_idx -1]:
                     self.broken_edge.append(edge)
 
 
