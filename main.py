@@ -48,6 +48,7 @@ def start_game(env):
     print_board(env)
     while not env.is_game_over():
         for agent in env.agents:
+            agent.handle_packages_and_deliveries()
             print(agent.agent_letter() + " Turn")
             agent.take_action()
             env.counter = env.counter + 1
@@ -61,6 +62,7 @@ def start_game(env):
             
     print("Final ScoreBoard:") #str(agent.id)+
     for agent in env.agents:
+        agent.handle_packages_and_deliveries()
         print(agent.agent_letter()+  " Score: " + str(agent.score))
        
 def main():

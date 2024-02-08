@@ -21,12 +21,12 @@ class Environment:
         for package in self.packages:
             if temp_time > package.deadline:
                 temp_time = package.deadline
-        if temp_time < self.closest_deadline:
+        if temp_time != sys.maxsize:
             self.closest_deadline = temp_time
 
 
     def is_game_over(self):
-        return len(self.packages) == 0 or self.counter > self.closest_deadline
+        return len(self.packages) == 0 or self.counter >= self.closest_deadline
 
 
     def get_packages(self, location, curr_time = None):

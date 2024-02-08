@@ -34,22 +34,19 @@ class Node:
     # not sure maybe a way to do it better ? 
     # maybe save one matrix for packages taken, and one for the rest ? 
     def update_packages_and_deliveries(self, env, agent_packages):
-        #is_ok = True
-    #        NOT_SHOWN = 1
-    #NOT_TAKEN = 2
-    #TAKEN = 3
-    #DELIVERED = 4
+
 
         #maybe return when package didn't deliverd on time
         if self.parent is not None: ## update packages from parent state
 
             for package, package_state in self.parent.packages.items(): 
                 #check if package can still be delivered 
-                if package.deadline < self.g + env.counter:
+                if package_state != Package_state.DELIVERED and not self.can_deliver_on_time(package, package_state, self.g + env.counter):
                     return False
                 if package_state == Package_state.NOT_SHOWN and package.start_time <= self.g + env.counter:
                     self.packages[package] = Package_state.NOT_TAKEN
-                self.packages[package] = self.parent.packages[package]
+                else:
+                    self.packages[package] = self.parent.packages[package]
 
             for package in env.get_packages(self.state_location, env.counter + self.g):
                 package_state = self.packages[package]
@@ -97,6 +94,16 @@ class Node:
 
         return count
 
+    def can_deliver_on_time(self, package, package_state, time):
+        manhattan_distance = lambda a, b: sum(abs(val1-val2) for val1, val2 in zip(a,b))
+        if package.deadline < time:
+            return False
+        if package_state == Package_state.NOT_TAKEN and (manhattan_distance(self.state_location, package.cur_location) + manhattan_distance(package.cur_location, package.dst_location) > package.deadline - time):
+            return False
+        elif package_state == Package_state.TAKEN and manhattan_distance(self.state_location, package.dst_location) > package.deadline - time:
+            return False
+        return True
+
     def __eq__(self, __other: object) -> bool:
         if self.state_location == __other.state_location:
             if len(self.fragile_broken_edges.difference(__other.fragile_broken_edges)) == 0:
@@ -112,6 +119,9 @@ class Node:
             if package_state == Package_state.NOT_TAKEN or  package_state == Package_state.NOT_SHOWN:
                 rel_ver.add(package.cur_location)
                 rel_ver.add(package.dst_location)
+            if package_state == Package_state.TAKEN:
+                rel_ver.add(package.dst_location)
+
 
         rel_ver.add(self.state_location)
 

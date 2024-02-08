@@ -47,16 +47,8 @@ class AbstractAgent:
 
     def check_if_valid_location(self, old_position, new_position):
         if 0 <= new_position[0] <= self.environment.max_x and 0 <= new_position[1] <= self.environment.max_y:
-
             if not (old_position, new_position) in self.environment.blocked_edges and not (new_position, old_position) in self.environment.blocked_edges:
-
-                if  self.cur_location is old_position:
-                    for agent in self.environment.agents:
-                        if agent != self and agent.cur_location == new_position:
-                            return False
-            else:
-                return False
-            return True
+                return True
         return False
 
 
@@ -84,7 +76,11 @@ class AbstractAgent:
             self.packages.remove(package)
             self.environment.packages.remove(package)
 
-        
+    def is_vertex_vacant(self, location):
+        for agent in self.environment.agents:
+            if agent.cur_location == location:
+                return False
+        return True
 
     #def update_package_location(self):
     #    for package in self.packages:
@@ -194,7 +190,7 @@ class GreedyAgent(Agent):
     def take_action(self):
         if len(self.environment.packages) != 0:
             path = self.dijkstra() ## strategy
-            if len(path) > 1:
+            if len(path) > 1 and self.is_vertex_vacant(path[1]):
                 self.environment.break_fragile_edge(self.cur_location, path[1])
                 self.cur_location = path[1]
                 self.handle_packages_and_deliveries()
@@ -249,8 +245,9 @@ class SaboteurAgent(Agent):
 
     def take_action(self):
         next_step = self.calc_next_action()
-        self.environment.break_fragile_edge(self.cur_location, next_step)
-        self.cur_location = next_step
+        if self.is_vertex_vacant(next_step):
+            self.environment.break_fragile_edge(self.cur_location, next_step)
+            self.cur_location = next_step
 
         
 
